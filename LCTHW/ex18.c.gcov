@@ -1,0 +1,124 @@
+        -:    0:Source:ex18.c
+        -:    0:Graph:ex18.gcno
+        -:    0:Data:ex18.gcda
+        -:    0:Runs:4
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <errno.h>
+        -:    4:#include <string.h>
+        -:    5:
+        -:    6:/** Our old friend die from ex17. **/
+        1:    7:void die(const char *message)
+        -:    8:{
+        1:    9:	if(errno) {
+    #####:   10:		perror(message);
+        -:   11:	} else {
+        1:   12:		printf("ERROR: %s\n", message);
+        -:   13:	}
+        -:   14:
+        1:   15:	exit(1);
+        -:   16:}
+        -:   17:
+        -:   18:// a typedef creates a fake type, in this
+        -:   19:// case for a function pointer
+        -:   20:typedef int (*compare_cb)(int a, int b);
+        -:   21:
+        -:   22:/**
+        -:   23: * A classic bubble sort function that uses the
+        -:   24: * compare_cb function to do the sorting.
+        -:   25: */
+        9:   26:int *bubble_sort(int *numbers, int count, compare_cb cmp)
+        -:   27:{
+        9:   28:	int temp = 0;
+        9:   29:	int i = 0;
+        9:   30:	int j = 0;
+        9:   31:	int *target = malloc(count * sizeof(int));
+        -:   32:
+        9:   33:	if(!target) die("Memory error.");
+        -:   34:
+        9:   35:	memcpy(target, numbers, count * sizeof(int));
+        -:   36:
+       42:   37:	for(i = 0; i < count; i++) {
+      153:   38:		for(j = 0; j < count - 1; j++) {
+      120:   39:			if(cmp(target[j], target[j+1]) > 0) {
+       46:   40:				temp = target[j+1];
+       46:   41:				target[j+1] = target[j];
+       46:   42:				target[j] = temp;
+        -:   43:			}
+        -:   44:		}
+        -:   45:	}
+        -:   46:
+        9:   47:	return target;
+        -:   48:}
+        -:   49:
+       40:   50:int sorted_order(int a, int b)
+        -:   51:{
+       40:   52:	return a - b;
+        -:   53:}
+       40:   54:int reverse_order(int a, int b)
+        -:   55:{
+       40:   56:	return b - a;
+        -:   57:}
+        -:   58:
+       40:   59:int strange_order(int a, int b)
+        -:   60:{
+       40:   61:	if(a == 0 || b == 0) {
+    #####:   62:		return 0;
+        -:   63:	} else {
+       40:   64:		return a % b;
+        -:   65:	}
+        -:   66:}
+        -:   67:
+        -:   68:/**
+        -:   69: * Used to test that we are sorting things correctly
+        -:   70: * by doing the sort and printing it out.
+        -:   71: */
+        9:   72:void test_sorting(int *numbers, int count, compare_cb cmp)
+        -:   73:{
+        9:   74:	int i = 0;
+        9:   75:	int *sorted = bubble_sort(numbers, count, cmp);
+        -:   76:
+        9:   77:	if(!sorted) die("Failed to sort as requested.");
+        -:   78:
+       42:   79:	for(i = 0; i < count; i++) {
+       33:   80:		printf("%d ", sorted[i]);
+        -:   81:	}
+        9:   82:	printf("\n");
+        -:   83:
+        9:   84:	free(sorted);
+        -:   85:
+        -:   86:	/* Prints out assembler byte code of function
+        -:   87:	unsigned char *data = (unsigned char *)cmp;
+        -:   88:
+        -:   89:	for(i = 0; i < 32; i++) {
+        -:   90:		printf("%02x:", data[i]);
+        -:   91:	}
+        -:   92:
+        -:   93:	printf("\n");
+        -:   94:	*/
+        9:   95:}
+        -:   96:
+        4:   97:int main(int argc, char *argv[])
+        -:   98:{
+        4:   99:	if(argc < 2) die("USAGE: ex18 4 3 1 5 6");
+        -:  100:
+        3:  101:	int count = argc - 1;
+        3:  102:	int i = 0;
+        3:  103:	char **inputs = argv + 1;
+        -:  104:
+        3:  105:	int *numbers = malloc(count * sizeof(int));
+        3:  106:	if(!numbers) die("Memory error.");
+        -:  107:
+       14:  108:	for(i = 0; i < count; i++) {
+       11:  109:		numbers[i] = atoi(inputs[i]);
+        -:  110:	}
+        -:  111:
+        3:  112:	test_sorting(numbers, count, sorted_order);
+        3:  113:	test_sorting(numbers, count, reverse_order);
+        3:  114:	test_sorting(numbers, count, strange_order);
+        -:  115:
+        3:  116:	free(numbers);
+        -:  117:
+        3:  118:	return 0;
+        -:  119:}
