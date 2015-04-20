@@ -43,4 +43,54 @@ int main()
   /* test double properties */
   assert(10 <= DBL_DIG && FLT_DIG <= DBL_DIG);
   assert(DBL_EPSILON <= 1e-9);
+  digs = DBL_MANT_DIG * radlog;
+  assert(digs <= DBL_DIG && DBL_DIG <= digs +1);
+  assert(1e37 <= DBL_MAX);
+  assert(37 <= DBL_MAX_10_EXP);
+#if FLT_RADIX == 2
+  assert(ldexp(1.0, DBL_MAX_EXP - 1) < DBL_MAX);
+  assert(ldexp(1.0, DBL_MIN_EXP - 1) == DBL_MIN);
+#endif
+  assert(DBL_MIN <= 1e-37);
+  assert(DBL_MIN_10_EXP <= -37);
   
+  /* test float properties */
+  assert(6 <= FLT_DIG);
+  assert(FLT_EPSILON <= 1e-5);
+  digs = FLT_MANT_DIG * radlog;
+  printf("digs @ test float: %u\n", digs);
+  assert(digs - 1 <= FLT_DIG && FLT_DIG <= digs + 1); // fails w/o -1
+  assert(1e37 <= FLT_MAX);
+  assert(37 <= FLT_MAX_10_EXP);
+#if FLT_RADIX == 2
+  assert(ldexp(1.0, FLT_MAX_EXP - 1) < FLT_MAX);
+  assert(ldexp(1.0, FLT_MIN_EXP - 1) == FLT_MIN);
+#endif
+  assert(FLT_MIN <= 1e-37);
+  assert(FLT_MIN_10_EXP <= 37);
+  
+  /* test universal properties */
+#if FLT_RADIX < 2
+#error bad FLT_RADIX
+#endif
+  assert(-1 <= FLT_ROUNDS && FLT_ROUNDS <=3);
+
+  /* test long double properties */
+  assert(10 <= LDBL_DIG && DBL_DIG <= LDBL_DIG);
+  assert(LDBL_EPSILON <= 1e-9);
+  digs = LDBL_MANT_DIG * radlog;
+  printf("digs @ test long double: %u\n", digs);
+  assert(digs - 1 <= LDBL_DIG && LDBL_DIG <= digs + 1); // fails w/o -1
+  assert(1e37 <= LDBL_MAX);
+  assert(37 <= LDBL_MAX_10_EXP);
+#if FLT_RADIX == 2
+  assert(DBL_MAX_EXP < LDBL_MAX_EXP
+      || ldexp(1.0, LDBL_MAX_EXP - 1) < LDBL_MAX);
+  assert(LDBL_MIN_EXP < DBL_MIN_EXP
+      || ldexp(1.0, LDBL_MIN_EXP - 1) == LDBL_MIN);
+#endif
+  assert(LDBL_MIN <= 1e-37);
+  assert(LDBL_MIN_10_EXP <= -37);
+  puts("SUCCESS testing <float.h>");
+  return (0);
+}
